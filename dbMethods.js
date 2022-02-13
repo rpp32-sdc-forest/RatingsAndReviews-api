@@ -75,7 +75,7 @@ module.exports = {
 
       var queryString =
       'SELECT characteristics.name, characteristics.product_id, characteristics.char_id, AVG(characteristic_reviews.value) as value'
-      // + ' ' + 'reviews.rating'
+      // + ' ' + 'reviews.recommend'
       + ' ' + 'FROM characteristics JOIN (characteristic_reviews)'
       + ' ' + 'ON (characteristics.char_id = characteristic_reviews.characteristic_id)'
       // + ' ' + 'JOIN reviews'
@@ -105,17 +105,47 @@ module.exports = {
       console.log('productid', productId)
       return new Promise((resolve, reject) => {
         queryString =
-        // 'SELECT COUNT(rating) as total, product_id, rating, COUNT(recommend) FROM reviews'
-        'SELECT product_id, COUNT(rating) as total, COUNT(r.recommend), rating FROM reviews'
-        ''
-        // + ' ' + 'FROM characteristics JOIN (characteristic_reviews)'
-        // + ' ' + 'ON (characteristics.char_id = characteristic_reviews.characteristic_id)'
-        + ' ' + 'JOIN reviews AS r ON r.product_id = product_id'
-        + ' ' + 'WHERE reviews.product_id = ?'
+  //       'SELECT COUNT(rating) as total, product_id, rating'
+  // + ' ' + 'FROM reviews'
+  // + ' ' + 'WHERE reviews.product_id = ?'
+  // // + ' ' + 'JOIN reviews as rr'
+  // // + ' ' + 'ON rr.rev_id = r.rev_id AND rr.rating = r.rating AND rr.recommend="false"'
+  // + ' ' + 'GROUP BY rating'
+  // + ' ' + 'LIMIT 50'
 
-        // + ' ' + 'OR WHERE reviews.product_id = ? AND reviews.recommend = "false"'
-        + ' ' + 'GROUP BY rating'
-        + ' ' + 'LIMIT 50'
+
+  "SELECT r.rating, r.product_id, COUNT(IF(r.recommend='false')) as F, COUNT(IF(r.recommend='true')) as T"
+  // + " " + "COUNT(CASE WHEN r.recommend='false' then 1 else 0 end) AS f"
+  // + ' ' + 'COUNT(case WHEN recommend="true" then 1 else 0 end) as T'
+  + " "  + "FROM reviews AS r"
+  + " " + "WHERE r.product_id = ? AND r.rating=2"
+  // + " " + "GROUP BY r.rating"
+  + " " + "LIMIT 50"
+
+
+
+
+
+//  'SELECT COUNT(r.rating) as total, r.product_id, r.rating, rr.recommend'
+//  'SELECT r.rating, rr.date'
+//  + ' ' + 'FROM reviews AS r'
+//   + ' ' + 'WHERE r.product_id = ?'
+//   + ' ' + 'JOIN reviews AS rr'
+//   + ' ' + 'ON rr.product_id = ?'
+//   // + ' ' + 'GROUP BY rating'
+//   + ' ' + 'LIMIT 50'
+
+
+
+
+// MySQL GROUP BY column and COUNT another column conditionally in the same table
+
+
+  //        'SELECT COUNT(recommend) as recommend, product_id FROM reviews'
+  // + ' ' + 'WHERE reviews.product_id = ?'
+  // + ' ' + 'AND reviews.recommend="false"'
+  // // + ' ' + 'GROUP BY reviews.product_id'
+  // + ' ' + 'LIMIT 50'
 
         queryArgs = [productId]
         db.query(queryString, queryArgs, (err, data) => {
@@ -128,8 +158,32 @@ module.exports = {
         })
       })
     })
-
   },
+
+
+
+
+  // data [
+  //   { product_id: 25, rating: 1, recommend: 'false' },
+  //   { product_id: 25, rating: 4, recommend: 'false' },
+  //   { product_id: 25, rating: 3, recommend: 'true' },
+  //   { product_id: 25, rating: 2, recommend: 'true' },
+
+
+  //   { total: 1, product_id: 25, rating: 3 },
+  //   { total: 3, product_id: 25, rating: 2 },
+  //   { total: 1, product_id: 25, rating: 5 },
+  //   { total: 2, product_id: 25, rating: 4 },
+
+ // 'SELECT rating,'
+        // + ' ' + 'sum(case when recommend = "true" then 1 else 0 end) as true'
+        // // + ' ' + 'sum(case when recommend="false" then 1 else 0 end) as 0 '
+        // + ' ' + 'FROM reviews'
+        // + ' ' + 'WHERE product_id = ?'
+        // + ' ' + 'GROUP BY rating'
+        // + ' ' + 'LIMIT 50'
+
+
 
   postReview: () => {
     console.log('postnewrev called')
