@@ -2,7 +2,7 @@ const express = require('express')
 
 const app = express()
 var model = require('./index.js')
-const port = 3000
+const port = 5000
 const {getReviews, getCharacteristicReviews, postReview} = require('./dbMethods')
 
 app.use(express.json())
@@ -32,6 +32,6 @@ app.post('/ratings', (req, res) => {
 
 
 
-app.listen(3000, () => {
-  console.log('listening on localhost:3000')
+app.listen(port, () => {
+  console.log(`listening on localhost:${port}`)
 })

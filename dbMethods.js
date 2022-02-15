@@ -51,8 +51,8 @@ module.exports = {
             }
           })
           response.count = reviewIds.length;
-          // console.log('response', response)
-          resolve(response)
+          console.log('response', response)
+          resolve()
         }
       })
     })
@@ -85,18 +85,19 @@ module.exports = {
       + ' ' + 'GROUP BY characteristics.name, characteristics.char_id'
       + ' ' + 'LIMIT 5';
 
-
       // + ' ' +
       // + ' ' + '
       // + ' ' + 'ON '
       // console.log('querystring', queryString)
+
+
       var queryArgs = [productId]
       db.query(queryString, queryArgs, (err, data) => {
         if (err) {
           console.log('err in get chars', err)
         } else {
           resolve(productId)
-          // console.log('data', JSON.parse(JSON.stringify(data)))
+          console.log('data', JSON.parse(JSON.stringify(data)))
           query1 = JSON.parse(JSON.stringify(data))
         }
       })
@@ -105,40 +106,65 @@ module.exports = {
       console.log('productid', productId)
       return new Promise((resolve, reject) => {
         queryString =
-  //       'SELECT COUNT(rating) as total, product_id, rating'
-  // + ' ' + 'FROM reviews'
-  // + ' ' + 'WHERE reviews.product_id = ?'
-  // // + ' ' + 'JOIN reviews as rr'
-  // // + ' ' + 'ON rr.rev_id = r.rev_id AND rr.rating = r.rating AND rr.recommend="false"'
+  //MY WANT TO WORK SOLUTION
+  //       'SELECT r.product_id, r.rating, rr.recommend'
+  // + ' ' + 'FROM reviews as r'
+  // + ' ' + 'WHERE r.product_id = ?'
+  // + ' ' + 'JOIN reviews as rr'
+  // + ' ' + 'ON rr.product_id = r.product_id"'
   // + ' ' + 'GROUP BY rating'
   // + ' ' + 'LIMIT 50'
 
+  //MY SOMEWHAT WORKING SOLUTION
+`SELECT reviews.product_id,
+COUNT(reviews.recommend='false') as F, COUNT(reviews.recommend='true') as T
+FROM reviews
+WHERE reviews.product_id = ?
+GROUP BY reviews.rating
+LIMIT 50`
 
-  "SELECT r.rating, r.product_id, COUNT(IF(r.recommend='false')) as F, COUNT(IF(r.recommend='true')) as T"
-  // + " " + "COUNT(CASE WHEN r.recommend='false' then 1 else 0 end) AS f"
-  // + ' ' + 'COUNT(case WHEN recommend="true" then 1 else 0 end) as T'
-  + " "  + "FROM reviews AS r"
-  + " " + "WHERE r.product_id = ? AND r.rating=2"
+
+  // "SELECT r.product_id, COUNT(rr.recommend='false') as F, COUNT(rr.recommend='true') as T, r.rating, COUNT(r.rating) as total"
+  // // + " " + "COUNT(CASE WHEN r.recommend='false' then 1 else 0 end) AS f"
+  // // + ' ' + 'COUNT(case WHEN recommend="true" then 1 else 0 end) as T'
+  // + " "  + "FROM reviews AS r"
+  // + " " + "WHERE r.product_id = ?"
+  // + ' ' + 'JOIN reviews as rr'
+  // + ' ' + 'ON rr.product_id = r.product_id"'
   // + " " + "GROUP BY r.rating"
-  + " " + "LIMIT 50"
+  // + " " + "LIMIT 50"
 
+  //STACK OF #1
+  // "SELECT product_id, rating, count(*), t, f"
+  // + " " + "FROM reviews"
+  // + " " + "JOIN ("
+  // + " " + "SELECT"
+  // + " " + "SUM(if(recommend='true'), 1, 0)) as t",
+  // + " " + "SUM(if(recommend='false'), 1, 0)) as f",
+  // + " " + "FROM reviews"
+  // + " " + "WHERE product_id = ?"
+  // + " " + "AS q"
+  // + " " + "WHERE product_id = ?"
+  // + " " + "GROUP BY product_id, rating, t, f"
 
+  //STACK OF #2
+  // "SELECT product_id, rating, COUNT(product_id) AS total, recommendTrue, recommendFalse"
+  // + " " + "FROM"
+  // + " " + "SELECT product_id, rating"
+  // + " " + "SUM(recommend='true') OVER () AS recommendTrue,"
+  // + " " + "SUM(recommend='false') OVER () AS recommendFalse,"
+  // + " " + "FROM reviews r"
+  // + " " + "WHERE r.product_id = ?)"
+  // + " " + "GROUP BY product_id, rating, recommendTrue, recommendFalse"
 
-
-
-//  'SELECT COUNT(r.rating) as total, r.product_id, r.rating, rr.recommend'
-//  'SELECT r.rating, rr.date'
+//  "SELECT r.rating, r.product_id, r.rating, rr.recommend'
+// //  'SELECT r.rating, rr.date'
 //  + ' ' + 'FROM reviews AS r'
 //   + ' ' + 'WHERE r.product_id = ?'
 //   + ' ' + 'JOIN reviews AS rr'
 //   + ' ' + 'ON rr.product_id = ?'
 //   // + ' ' + 'GROUP BY rating'
 //   + ' ' + 'LIMIT 50'
-
-
-
-
-// MySQL GROUP BY column and COUNT another column conditionally in the same table
 
 
   //        'SELECT COUNT(recommend) as recommend, product_id FROM reviews'
@@ -150,7 +176,7 @@ module.exports = {
         queryArgs = [productId]
         db.query(queryString, queryArgs, (err, data) => {
           if (err) {
-            console.log('err in get ratings', err)
+            console.log('err in get characteristics 2', err)
           } else {
             console.log('data', JSON.parse(JSON.stringify(data)))
             query2 = JSON.parse(JSON.stringify(data))
@@ -162,7 +188,7 @@ module.exports = {
 
 
 
-
+//
   // data [
   //   { product_id: 25, rating: 1, recommend: 'false' },
   //   { product_id: 25, rating: 4, recommend: 'false' },
@@ -187,14 +213,62 @@ module.exports = {
 
   postReview: () => {
     console.log('postnewrev called')
+    return new Promise((resolve, reject) => {
+      var queryString = 'INSERT INTO reviews SET ?'
+      var queryArgs = {
+        product_id: 11,
+        rating: 2,
+        summary: 'I love this product',
+        body: 'Really well made',
+        recommend: true,
+        name: 'Meredith',
+        email: 'mer.white@practice.com',
+        photos: ['url', 'url'],
+        characteristics: {"14": 5, "15": 5}
+      }
+      db.query(queryString, queryArgs, (err, results) => {
+        if (err) {
+          console.log('error in put', err)
+        } else {
+          console.log('succes', results.insertedId)
+          resolve(results.insertedId)
+        }
+      })
+    })
   },
 
-  updateHelpfulness: (reviewId) => {
+  updateHelpfulness: (reviewId, helpfulness) => {
     //query reviews collection for matching reviewId & update helpfulness
+    //somehow need to get the helpfulness integer?
+    return new Promise((resolve, reject) => {
+      var queryString = 'UPDATE reviews SET helpfulness = ? WHERE rev_id = ?'
+      var queryArgs = reviewId, helpfulness
+      db.query(queryString, queryArgs, (err) => {
+        if (err) {
+          console.log('error in update helpfulness', err)
+        } else {
+          console.log('success update helpfulness')
+          resolve()
+        }
+      })
+    })
   },
 
-  updateReported: (reviewId) => {
+  updateReported: (reviewId, reported) => {
     //query reviews collection for matching reviewId and update reported
+    //need to get reported true/false
+    return new Promise((resolve, reject) => {
+      var queryString = 'UPDATE reviews SET reported = ? WHERE rev_id = ?'
+      var queryArgs = reviewId, reported
+      db.query(queryString, queryArgs, (err) => {
+        if (err) {
+          console.log('error in update helpfulness', err)
+        } else {
+          console.log('success update helpfulness')
+          resolve()
+        }
+      })
+    })
   }
 }
 
