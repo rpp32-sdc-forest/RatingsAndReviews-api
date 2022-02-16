@@ -106,83 +106,49 @@ module.exports = {
       console.log('productid', productId)
       return new Promise((resolve, reject) => {
         queryString =
-  //MY WANT TO WORK SOLUTION
-  //       'SELECT r.product_id, r.rating, rr.recommend'
-  // + ' ' + 'FROM reviews as r'
-  // + ' ' + 'WHERE r.product_id = ?'
-  // + ' ' + 'JOIN reviews as rr'
-  // + ' ' + 'ON rr.product_id = r.product_id"'
-  // + ' ' + 'GROUP BY rating'
-  // + ' ' + 'LIMIT 50'
 
-  //MY SOMEWHAT WORKING SOLUTION
-`SELECT reviews.product_id,
-COUNT(reviews.recommend='false') as F, COUNT(reviews.recommend='true') as T
-FROM reviews
-WHERE reviews.product_id = ?
-GROUP BY reviews.rating
-LIMIT 50`
+        `SELECT product_id, rating, COUNT(*) AS total, t, f
+        FROM reviews
+        JOIN (
+        SELECT
+        SUM(if(recommend= 'true', 1, 0)) as t,
+        SUM(if(recommend= 'false', 1, 0)) as f
+        FROM reviews
+        WHERE product_id = ?
+        ) as r
+        WHERE product_id = ?
+        GROUP BY rating, product_id, t, f
+        LIMIT 10`
 
-
-  // "SELECT r.product_id, COUNT(rr.recommend='false') as F, COUNT(rr.recommend='true') as T, r.rating, COUNT(r.rating) as total"
-  // // + " " + "COUNT(CASE WHEN r.recommend='false' then 1 else 0 end) AS f"
-  // // + ' ' + 'COUNT(case WHEN recommend="true" then 1 else 0 end) as T'
-  // + " "  + "FROM reviews AS r"
-  // + " " + "WHERE r.product_id = ?"
-  // + ' ' + 'JOIN reviews as rr'
-  // + ' ' + 'ON rr.product_id = r.product_id"'
-  // + " " + "GROUP BY r.rating"
-  // + " " + "LIMIT 50"
-
-  //STACK OF #1
-  // "SELECT product_id, rating, count(*), t, f"
-  // + " " + "FROM reviews"
-  // + " " + "JOIN ("
-  // + " " + "SELECT"
-  // + " " + "SUM(if(recommend='true'), 1, 0)) as t",
-  // + " " + "SUM(if(recommend='false'), 1, 0)) as f",
-  // + " " + "FROM reviews"
-  // + " " + "WHERE product_id = ?"
-  // + " " + "AS q"
-  // + " " + "WHERE product_id = ?"
-  // + " " + "GROUP BY product_id, rating, t, f"
-
-  //STACK OF #2
-  // "SELECT product_id, rating, COUNT(product_id) AS total, recommendTrue, recommendFalse"
-  // + " " + "FROM"
-  // + " " + "SELECT product_id, rating"
-  // + " " + "SUM(recommend='true') OVER () AS recommendTrue,"
-  // + " " + "SUM(recommend='false') OVER () AS recommendFalse,"
-  // + " " + "FROM reviews r"
-  // + " " + "WHERE r.product_id = ?)"
-  // + " " + "GROUP BY product_id, rating, recommendTrue, recommendFalse"
-
-//  "SELECT r.rating, r.product_id, r.rating, rr.recommend'
-// //  'SELECT r.rating, rr.date'
-//  + ' ' + 'FROM reviews AS r'
-//   + ' ' + 'WHERE r.product_id = ?'
-//   + ' ' + 'JOIN reviews AS rr'
-//   + ' ' + 'ON rr.product_id = ?'
-//   // + ' ' + 'GROUP BY rating'
-//   + ' ' + 'LIMIT 50'
-
-
-  //        'SELECT COUNT(recommend) as recommend, product_id FROM reviews'
-  // + ' ' + 'WHERE reviews.product_id = ?'
-  // + ' ' + 'AND reviews.recommend="false"'
-  // // + ' ' + 'GROUP BY reviews.product_id'
-  // + ' ' + 'LIMIT 50'
-
-        queryArgs = [productId]
+        queryArgs = [productId, productId]
         db.query(queryString, queryArgs, (err, data) => {
           if (err) {
             console.log('err in get characteristics 2', err)
           } else {
             console.log('data', JSON.parse(JSON.stringify(data)))
             query2 = JSON.parse(JSON.stringify(data))
+
+            var response = {
+              product_id: productId,
+              ratings: {},
+              recommended: {},
+              characteristics: {}
+            }
+            query1.forEach((char) => {
+              console.log('char', char)
+              response.characteristics[char.name] = {'id': char.char_id, 'value': char.value}
+            })
+            query2.forEach((rev) => {
+              response.ratings[rev.rating] = rev.total
+            })
+            response.recommended = {'0': query2[0].t, '1': query2[0].f}
+            console.log('response', response)
+            resolve()
           }
         })
       })
+      // console.log('query 1', query1)
+      // console.log('query 2', query2)
     })
   },
 

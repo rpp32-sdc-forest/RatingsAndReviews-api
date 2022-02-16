@@ -15,14 +15,17 @@ app.get('/ratings/:productId', (req, res) => {
   console.log('req.params', req.params)
   getReviews(req.params.productId)
   .then((response) => {
-    // console.log('response in server', response)
+    console.log('response in server', response)
   })
   res.send(response).status(200)
 })
 
 app.get('/characteristics/:productId', (req, res) => {
   getCharacteristicReviews(req.params.productId)
-
+  .then((response) => {
+    console.log('char response in server', response)
+  })
+  res.send(response).status(200)
 })
 
 app.post('/ratings', (req, res) => {

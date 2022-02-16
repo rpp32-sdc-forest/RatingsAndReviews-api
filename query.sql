@@ -1,8 +1,25 @@
 use ratings;
 
-SELECT reviews.product_id,
-COUNT(reviews.recommend='false') as F, COUNT(reviews.recommend='true') as T
+SELECT product_id, rating, COUNT(*) AS total, t, f
+FROM reviews
+JOIN (
+SELECT
+SUM(if(recommend= 'true', 1, 0)) as T,
+SUM(if(recommend= 'false', 1, 0)) as F
 FROM reviews
 WHERE reviews.product_id = 25
-GROUP BY reviews.rating
-LIMIT 5;
+) WHERE reviews.product_id = 25
+GROUP BY rating, product_id, t, f
+LIMIT 10;
+
+
+-- SELECT product_id, rating, count(*), t, f
+-- FROM reviews
+-- JOIN (
+-- SELECT
+-- SUM(if(recommend='true'), 1, 0)) as t,
+-- SUM(if(recommend='false'), 1, 0)) as f,
+-- FROM reviews
+-- WHERE product_id = ?
+-- ) WHERE product_id = ?
+-- GROUP BY product_id, rating, t, f
