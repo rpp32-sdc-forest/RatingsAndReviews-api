@@ -10,6 +10,7 @@ module.exports = {
       var queryArgs = [productId]
       db.query(queryString, queryArgs, (err, data) => {
         if (err) {
+          console.log('error in db get reviews')
           reject (err)
         } else {
           // console.log('data', JSON.parse(JSON.stringify(data)))
@@ -56,15 +57,11 @@ module.exports = {
         }
       })
     })
-    .catch(err => console.log('error in getReviews'))
+    .catch(err => {
+      throw(err)
+      console.log('error in getReviews')
+    })
   },
-
-  // 'SELECT characteristics.name, characteristics.product_id, characteristic_reviews.value, reviews.rating, reviews.recommend, reviews.product_id as prod_id'
-  //     + ' ' + 'FROM characteristics JOIN (characteristic_reviews, reviews)'
-  //     + ' ' + 'ON (characteristics.char_id = characteristic_reviews.characteristic_id'
-  //     + ' ' + 'AND characteristic_reviews.review_id = reviews.rev_id)'
-  //     + ' ' + 'WHERE characteristics.product_id = ?'
-  //     + ' ' + 'LIMIT 5';
 
 
   getCharacteristicReviews: (productId) => {
@@ -75,26 +72,16 @@ module.exports = {
 
       var queryString =
       'SELECT characteristics.name, characteristics.product_id, characteristics.char_id, AVG(characteristic_reviews.value) as value'
-      // + ' ' + 'reviews.recommend'
       + ' ' + 'FROM characteristics JOIN (characteristic_reviews)'
       + ' ' + 'ON (characteristics.char_id = characteristic_reviews.characteristic_id)'
-      // + ' ' + 'JOIN reviews'
-      // + ' ' + 'ON (characteristic_reviews.review_id = reviews.rev_id)'
-      // + ' ' + 'AND characteristic_reviews.review_id = reviews.rev_id)'
       + ' ' + 'WHERE characteristics.product_id = ?'
       + ' ' + 'GROUP BY characteristics.name, characteristics.char_id'
       + ' ' + 'LIMIT 5';
-
-      // + ' ' +
-      // + ' ' + '
-      // + ' ' + 'ON '
-      // console.log('querystring', queryString)
-
-
       var queryArgs = [productId]
       db.query(queryString, queryArgs, (err, data) => {
         if (err) {
           console.log('err in get chars', err)
+          reject(err)
         } else {
           resolve(productId)
           console.log('data', JSON.parse(JSON.stringify(data)))
@@ -124,6 +111,7 @@ module.exports = {
         db.query(queryString, queryArgs, (err, data) => {
           if (err) {
             console.log('err in get characteristics 2', err)
+            throw(err)
           } else {
             console.log('data', JSON.parse(JSON.stringify(data)))
             query2 = JSON.parse(JSON.stringify(data))
@@ -153,62 +141,89 @@ module.exports = {
   },
 
 
-
-//
-  // data [
-  //   { product_id: 25, rating: 1, recommend: 'false' },
-  //   { product_id: 25, rating: 4, recommend: 'false' },
-  //   { product_id: 25, rating: 3, recommend: 'true' },
-  //   { product_id: 25, rating: 2, recommend: 'true' },
-
-
-  //   { total: 1, product_id: 25, rating: 3 },
-  //   { total: 3, product_id: 25, rating: 2 },
-  //   { total: 1, product_id: 25, rating: 5 },
-  //   { total: 2, product_id: 25, rating: 4 },
-
- // 'SELECT rating,'
-        // + ' ' + 'sum(case when recommend = "true" then 1 else 0 end) as true'
-        // // + ' ' + 'sum(case when recommend="false" then 1 else 0 end) as 0 '
-        // + ' ' + 'FROM reviews'
-        // + ' ' + 'WHERE product_id = ?'
-        // + ' ' + 'GROUP BY rating'
-        // + ' ' + 'LIMIT 50'
-
-
-
-  postReview: () => {
-    console.log('postnewrev called')
+  postReview: (body) => {
+    console.log('body', body)
+    body.Chars = body.Chars.filter((char) => char.Id !== '')
     return new Promise((resolve, reject) => {
       var queryString = 'INSERT INTO reviews SET ?'
       var queryArgs = {
-        product_id: 11,
-        rating: 2,
-        summary: 'I love this product',
-        body: 'Really well made',
-        recommend: true,
-        name: 'Meredith',
-        email: 'mer.white@practice.com',
-        photos: ['url', 'url'],
-        characteristics: {"14": 5, "15": 5}
+        product_id: body.productId,
+        rating: body.rating,
+        summary: body.reviewSummary,
+        body: body.reviewBody,
+        recommend: body.recommended === 'true',
+        reviewer_name: body.nickName,
+        reviewer_email: body.email,
       }
       db.query(queryString, queryArgs, (err, results) => {
         if (err) {
+          reject(err)
           console.log('error in put', err)
         } else {
-          console.log('succes', results.insertedId)
-          resolve(results.insertedId)
+          console.log('succes', results.insertId)
+          resolve(results.insertId)
         }
       })
     })
+    .then((revId) => {
+      console.log('id', revId)
+      var photos = body.imgUrl
+      var photoPromises = photos.map(url => {
+        return new Promise((resolve, reject) => {
+          var queryString = 'INSERT INTO photos SET ?'
+          var queryArgs = {
+            review_id: revId,
+            url: url
+          }
+          db.query(queryString, queryArgs, (err, results) => {
+            if (err) {
+              console.log('err in insert photos', err)
+              reject(err)
+            } else {
+              console.log('success photo insert')
+              resolve()
+            }
+          })
+        })
+      })
+      Promise.all(photoPromises)
+      .then(() => {
+        console.log('end id', revId)
+        var chars = body.Chars
+        console.log('chars', chars)
+          var charPromises = chars.map(char => {
+            console.log('charId', char.Id)
+            return new Promise((resolve, reject) => {
+              var queryString = 'INSERT INTO characteristic_reviews SET ?'
+              var queryArgs = {
+                characteristic_id: char.Id,
+                review_id: revId,
+                value: char.val
+              }
+              db.query(queryString, queryArgs, (err, results) => {
+                if (err) {
+                  console.log('err in insert chars', err)
+                  reject(err)
+                } else {
+                  console.log('success char insert')
+                  resolve()
+                }
+              })
+            })
+          })
+          Promise.all(charPromises).then(console.log('all chars insert success'))
+      })
+    })
   },
+    //insert query to characteristics_reviews table to post char revs,
 
-  updateHelpfulness: (reviewId, helpfulness) => {
+
+  updateHelpfulness: (reviewId) => {
     //query reviews collection for matching reviewId & update helpfulness
     //somehow need to get the helpfulness integer?
     return new Promise((resolve, reject) => {
-      var queryString = 'UPDATE reviews SET helpfulness = ? WHERE rev_id = ?'
-      var queryArgs = reviewId, helpfulness
+      var queryString = 'UPDATE reviews SET helpfulness = helpfulness + 1 WHERE rev_id = ?'
+      var queryArgs = [reviewId]
       db.query(queryString, queryArgs, (err) => {
         if (err) {
           console.log('error in update helpfulness', err)
@@ -220,12 +235,12 @@ module.exports = {
     })
   },
 
-  updateReported: (reviewId, reported) => {
+  updateReported: (reviewId) => {
     //query reviews collection for matching reviewId and update reported
     //need to get reported true/false
     return new Promise((resolve, reject) => {
       var queryString = 'UPDATE reviews SET reported = ? WHERE rev_id = ?'
-      var queryArgs = reviewId, reported
+      var queryArgs = ['true', reviewId]
       db.query(queryString, queryArgs, (err) => {
         if (err) {
           console.log('error in update helpfulness', err)
