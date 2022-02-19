@@ -44,7 +44,7 @@ app.get('/characteristics/:productId', (req, res) => {
 app.post('/ratings', (req, res) => {
   console.log('req.body in server', req.body)
   postReview(req.body)
-  .then(console.log('post resolved'))
+  // .then(console.log('post resolved'))
   res.sendStatus(200)
 })
 
@@ -54,12 +54,11 @@ app.put('/helpful/:reviewId', (req, res) => {
   res.sendStatus(200)
 })
 
-app.patch('/report/:reviewId', (req, res) => {
+app.put('/report/:reviewId', (req, res) => {
   console.log('req.params', req.params)
   updateReported(req.params.reviewId)
+  res.sendStatus(200)
 })
-
-
 
 app.listen(port, () => {
   console.log(`listening on localhost:${port}`)

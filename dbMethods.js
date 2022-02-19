@@ -177,7 +177,7 @@ module.exports = {
           reject(err)
           console.log('error in put', err)
         } else {
-          console.log('succes', results.insertId)
+          // console.log('succes', results.insertId)
           resolve(results.insertId)
         }
       })
@@ -197,7 +197,7 @@ module.exports = {
               console.log('err in insert photos', err)
               reject(err)
             } else {
-              console.log('success photo insert')
+              // console.log('success photo insert')
               resolve()
             }
           })
@@ -222,7 +222,7 @@ module.exports = {
                   console.log('err in insert chars', err)
                   reject(err)
                 } else {
-                  console.log('success char insert')
+                  // console.log('success char insert')
                   resolve()
                 }
               })
@@ -258,9 +258,9 @@ module.exports = {
       var queryArgs = [reviewId]
       db.query(queryString, queryArgs, (err) => {
         if (err) {
-          console.log('error in update helpfulness', err)
+          console.log('error in update reported', err)
         } else {
-          console.log('success update helpfulness')
+          console.log('success update reported')
           resolve()
         }
       })
