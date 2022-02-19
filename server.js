@@ -42,8 +42,10 @@ app.get('/characteristics/:productId', (req, res) => {
 })
 
 app.post('/ratings', (req, res) => {
-  console.log('req.body', req.body)
+  console.log('req.body in server', req.body)
   postReview(req.body)
+  .then(console.log('post resolved'))
+  res.sendStatus(200)
 })
 
 app.put('/helpful/:reviewId', (req, res) => {

@@ -3,7 +3,7 @@ var db = require('./index.js')
 module.exports = {
 
   getReviews: (productId) => {
-    console.log('getReviews called')
+    // console.log('getReviews called')
     // console.log(productId)
     return new Promise((resolve, reject) => {
       var queryString = 'SELECT * FROM reviews LEFT JOIN photos ON reviews.rev_id = photos.review_id WHERE product_id = ? limit 50'
@@ -137,8 +137,9 @@ module.exports = {
               characteristics: {}
             }
             query1.forEach((char) => {
-              // console.log('char', char)
-              response.characteristics[char.name] = {'id': char.char_id, 'value': char.value}
+              var parsedCharName = JSON.parse(char.name)
+
+              response.characteristics[parsedCharName] = {'id': char.char_id, 'value': char.value}
             })
             query2.forEach((rev) => {
               response.ratings[rev.rating] = rev.total
@@ -156,17 +157,19 @@ module.exports = {
 
 
   postReview: (body) => {
-    console.log('body', body)
-    body.Chars = body.Chars.filter((char) => char.Id !== '')
+    console.log('review body in dbs', body)
+    // console.log('array of chars', Object.entries(body.characteristics))
+    var charsArray = Object.entries(body.characteristics)
+    body.characteristics = charsArray.filter(([key, value]) => value !== '')
     return new Promise((resolve, reject) => {
       var queryString = 'INSERT INTO reviews SET ?'
       var queryArgs = {
-        product_id: body.productId,
+        product_id: body.product_id,
         rating: body.rating,
-        summary: body.reviewSummary,
-        body: body.reviewBody,
+        summary: body.summary,
+        body: body.body,
         recommend: body.recommended === 'true',
-        reviewer_name: body.nickName,
+        reviewer_name: body.name,
         reviewer_email: body.email,
       }
       db.query(queryString, queryArgs, (err, results) => {
@@ -180,8 +183,8 @@ module.exports = {
       })
     })
     .then((revId) => {
-      console.log('id', revId)
-      var photos = body.imgUrl
+      // console.log('id', revId)
+      var photos = body.photos
       var photoPromises = photos.map(url => {
         return new Promise((resolve, reject) => {
           var queryString = 'INSERT INTO photos SET ?'
@@ -202,17 +205,17 @@ module.exports = {
       })
       Promise.all(photoPromises)
       .then(() => {
-        console.log('end id', revId)
-        var chars = body.Chars
-        console.log('chars', chars)
+        // console.log('end id', revId)
+        var chars = body.characteristics
+        // console.log('chars', chars)
           var charPromises = chars.map(char => {
-            console.log('charId', char.Id)
+            // console.log('charId', char.Id)
             return new Promise((resolve, reject) => {
               var queryString = 'INSERT INTO characteristic_reviews SET ?'
               var queryArgs = {
-                characteristic_id: char.Id,
+                characteristic_id: Number(char[0]),
                 review_id: revId,
-                value: char.val
+                value: char[1]
               }
               db.query(queryString, queryArgs, (err, results) => {
                 if (err) {
@@ -225,7 +228,8 @@ module.exports = {
               })
             })
           })
-          Promise.all(charPromises).then(console.log('all chars insert success'))
+          Promise.all(charPromises)
+          // console.log('all chars insert success'))
       })
     })
   },
