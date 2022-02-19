@@ -13,7 +13,7 @@ connection.connect((err, result) => {
     throw err
   } else {
     //message coming from mysql
-    console.log('result', result)
+    // console.log('result', result)
     console.log ('connected to mysql!')
   }
 })

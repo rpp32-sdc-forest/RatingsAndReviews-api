@@ -4,9 +4,9 @@ module.exports = {
 
   getReviews: (productId) => {
     console.log('getReviews called')
-    console.log(productId)
+    // console.log(productId)
     return new Promise((resolve, reject) => {
-      var queryString = 'SELECT * FROM reviews LEFT JOIN photos ON reviews.rev_id = photos.review_id WHERE product_id = ?'
+      var queryString = 'SELECT * FROM reviews LEFT JOIN photos ON reviews.rev_id = photos.review_id WHERE product_id = ? limit 50'
       var queryArgs = [productId]
       db.query(queryString, queryArgs, (err, data) => {
         if (err) {
@@ -25,12 +25,19 @@ module.exports = {
           }
           // console.log('response', response)
           data.forEach(el => {
+
             if (!reviewIds.includes(el.rev_id)) {
               reviewIds.push(el.rev_id)
 
               var review = {}
               review.review_id = el.rev_id;
               review.rating = el.product_id;
+              //check first for date
+              if(el.date === null) {
+                reviews.date = new Date().toString();
+              } else {
+                reviews.date = el.date
+              }
               review.summary = el.summary;
               review.recommend = el.recommend;
               review.response = el.response;
@@ -40,20 +47,26 @@ module.exports = {
               review.reviewer_name = el.reviewer_name;
               review.review_email = el.reviewer_email;
               review.helpfulness = el.helpfulness;
+                //if it's null just leave mepty array
+                //if not null, push to array
               review.photos = []
-              review.photos.push(el.url)
+              if (el.url !== null) {
+                review.photos.push(el.url)
+              }
               response.results.push(review)
             } else {
               for (var revs in response.results) {
                 if (el.rev_id === revs.review_id) {
-                  revs.photos.push(el.url)
+                  if (el.url !== null) {
+                    revs.photos.push(el.url)
+                  }
                 }
               }
             }
           })
           response.count = reviewIds.length;
-          console.log('response', response)
-          resolve()
+          // console.log('response', response)
+          resolve(response)
         }
       })
     })
@@ -63,11 +76,11 @@ module.exports = {
     })
   },
 
-
+// promisify db.query so no callbacks
   getCharacteristicReviews: (productId) => {
     var query1;
     var query2;
-    console.log('productid', productId)
+    // console.log('productid', productId)
     return new Promise((resolve, reject) => {
 
       var queryString =
@@ -78,19 +91,20 @@ module.exports = {
       + ' ' + 'GROUP BY characteristics.name, characteristics.char_id'
       + ' ' + 'LIMIT 5';
       var queryArgs = [productId]
+      //return db.query get a promise back and chain with .then block -> get date
       db.query(queryString, queryArgs, (err, data) => {
         if (err) {
           console.log('err in get chars', err)
           reject(err)
         } else {
           resolve(productId)
-          console.log('data', JSON.parse(JSON.stringify(data)))
+          // console.log('data', JSON.parse(JSON.stringify(data)))
           query1 = JSON.parse(JSON.stringify(data))
         }
       })
     })
     .then((productId) => {
-      console.log('productid', productId)
+      // console.log('productid', productId)
       return new Promise((resolve, reject) => {
         queryString =
 
@@ -113,7 +127,7 @@ module.exports = {
             console.log('err in get characteristics 2', err)
             throw(err)
           } else {
-            console.log('data', JSON.parse(JSON.stringify(data)))
+            // console.log('data', JSON.parse(JSON.stringify(data)))
             query2 = JSON.parse(JSON.stringify(data))
 
             var response = {
@@ -123,15 +137,15 @@ module.exports = {
               characteristics: {}
             }
             query1.forEach((char) => {
-              console.log('char', char)
+              // console.log('char', char)
               response.characteristics[char.name] = {'id': char.char_id, 'value': char.value}
             })
             query2.forEach((rev) => {
               response.ratings[rev.rating] = rev.total
             })
             response.recommended = {'0': query2[0].t, '1': query2[0].f}
-            console.log('response', response)
-            resolve()
+            // console.log('response', response)
+            resolve(response)
           }
         })
       })
@@ -215,20 +229,17 @@ module.exports = {
       })
     })
   },
-    //insert query to characteristics_reviews table to post char revs,
-
 
   updateHelpfulness: (reviewId) => {
-    //query reviews collection for matching reviewId & update helpfulness
-    //somehow need to get the helpfulness integer?
+    console.log('reviewId', reviewId)
     return new Promise((resolve, reject) => {
-      var queryString = 'UPDATE reviews SET helpfulness = helpfulness + 1 WHERE rev_id = ?'
+      var queryString = 'UPDATE reviews SET helpfulness = IFNULL(helpfulness, 0) + 1 WHERE rev_id = ?'
       var queryArgs = [reviewId]
-      db.query(queryString, queryArgs, (err) => {
+      db.query(queryString, queryArgs, (err, result) => {
         if (err) {
           console.log('error in update helpfulness', err)
         } else {
-          console.log('success update helpfulness')
+          console.log('success update helpfulness', result)
           resolve()
         }
       })
@@ -236,11 +247,11 @@ module.exports = {
   },
 
   updateReported: (reviewId) => {
-    //query reviews collection for matching reviewId and update reported
-    //need to get reported true/false
+    console.log('reviewId', reviewId)
+
     return new Promise((resolve, reject) => {
-      var queryString = 'UPDATE reviews SET reported = ? WHERE rev_id = ?'
-      var queryArgs = ['true', reviewId]
+      var queryString = 'UPDATE reviews SET reported = true WHERE rev_id = ?'
+      var queryArgs = [reviewId]
       db.query(queryString, queryArgs, (err) => {
         if (err) {
           console.log('error in update helpfulness', err)

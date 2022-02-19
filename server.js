@@ -12,10 +12,10 @@ app.post('/characteristics', (req, res) => {
 
 app.get('/ratings/:productId', (req, res) => {
   //call dbMethod getReviews to query reviews collection
-  console.log('req.params', req.params)
+  // console.log('req.params', req.params)
   getReviews(req.params.productId)
   .then((response) => {
-    console.log('response in server', response)
+    // console.log('response in server', response)
     res.send(response).status(200)
   })
   .catch(err => {
@@ -27,24 +27,34 @@ app.get('/ratings/:productId', (req, res) => {
 app.get('/characteristics/:productId', (req, res) => {
   getCharacteristicReviews(req.params.productId)
   .then((response) => {
-    console.log('char response in server', response)
-    res.send(response).status(200)
+    // console.log('char response in server', response)
+    // response.characteristics = JSON.parse(response.characteristics)
+    // console.log('response.characteristics', response.characteristics)
+    //res.json to send as json
+    res.json(response).status(200)
+    // res.send(response).status(200)
   })
   .catch(err => {
     console.log('err in app.get characteristics', err)
+
     res.sendStatus(200)
   })
 })
 
 app.post('/ratings', (req, res) => {
   console.log('req.body', req.body)
-  req.body.Chars = req.body.Chars.filter((char) => char.Id !== '')
   postReview(req.body)
 })
 
-app.patch('/helpful/:reviewId', (req, res) => {
-  console.log('req.body', req.body)
-  updateHelpfulness(req.body)
+app.put('/helpful/:reviewId', (req, res) => {
+  console.log('req.params', req.params)
+  updateHelpfulness(req.params.reviewId)
+  res.sendStatus(200)
+})
+
+app.patch('/report/:reviewId', (req, res) => {
+  console.log('req.params', req.params)
+  updateReported(req.params.reviewId)
 })
 
 
