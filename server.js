@@ -1,14 +1,15 @@
 const express = require('express')
+// const {createServer} = require('./server.ts')
 
 const app = express()
-var model = require('./index.js')
+app.use(express.json())
+app.use(express.urlencoded({extended: true}))
+
+const model = require('./index.js')
 const port = 5000
 const {getReviews, getCharacteristicReviews, postReview, updateHelpfulness, updateReported} = require('./dbMethods')
 
-app.use(express.json())
-app.use(express.urlencoded({extended: true}))
-app.post('/characteristics', (req, res) => {
-})
+
 
 app.get('/ratings/:productId', (req, res) => {
   //call dbMethod getReviews to query reviews collection
@@ -17,6 +18,7 @@ app.get('/ratings/:productId', (req, res) => {
   .then((response) => {
     // console.log('response in server', response)
     res.send(response).status(200)
+  .catch(err => res.sendStatus(404))
   })
   .catch(err => {
     console.log('err in app.get /ratings', err)
@@ -63,3 +65,5 @@ app.put('/report/:reviewId', (req, res) => {
 app.listen(port, () => {
   console.log(`listening on localhost:${port}`)
 })
+
+module.exports = app;

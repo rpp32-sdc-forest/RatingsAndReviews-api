@@ -242,6 +242,7 @@ module.exports = {
       db.query(queryString, queryArgs, (err, result) => {
         if (err) {
           console.log('error in update helpfulness', err)
+          reject(err)
         } else {
           console.log('success update helpfulness', result)
           resolve()
