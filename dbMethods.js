@@ -1,4 +1,5 @@
 var db = require('./index.js')
+//replicate this file dbTestMethods that will query test db
 
 module.exports = {
 

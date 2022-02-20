@@ -69,11 +69,15 @@ it('should run Jest', () => {
 jest.setTimeout(10000)
 
 describe('Ratings endpoint', () => {
+
   it('should return a 200 status code', async () => {
     const response = await request(baseUrl)
     .get('ratings/25');
-
     expect(response.statusCode).toBe(200);
+  })
+  it('should be an object', async () => {
+    const response = await request(baseUrl)
+    expect(typeof response.body).toBe('Object')
   })
 })
 
