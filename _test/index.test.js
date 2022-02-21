@@ -65,20 +65,110 @@ it('should run Jest', () => {
 //   })
 // })
 
+// {
+//   product: '18',
+//   page: 0,
+//   count: 3,
+//   results: [
+//     {
+//       review_id: 51,
+//       rating: 18,
+//       summary: '"Aut debitis voluptatem vel fuga similique velit."',
+//       recommend: 'true',
+//       response: undefined,
+//       report: '1',
+//       body: '"Sequi cum sapiente iusto. Illo mollitia pariatur nam non in expedita alias. Reprehenderit sit distinctio adipisci sunt. Explicabo officiis et. Velit corporis et natus voluptatem ducimus nihil quia officiis. Eligendi nobis eum iusto eveniet odio perspiciatis."',
+//       date: '1617448837842',
+//       reviewer_name: '"Carolanne.Rodriguez10"',
+//       review_email: '"Hassie_Friesen@yahoo.com"',
+//       helpfulness: 13,
+//       photos: [Array]
+//     }
+//}
+
+//
+// {
+  //   product_id: '25',
+  //   ratings: { '1': 1, '2': 3, '3': 1, '4': 2, '5': 1 },
+  //   recommended: { '0': 7, '1': 1 },
+  //   characteristics: {
+  //     Size: { id: 88, value: 2.75 },
+  //     Width: { id: 89, value: 3 },
+  //     Comfort: { id: 90, value: 2 },
+  //     Quality: { id: 91, value: 3.125 }
+  //   }
+  // }
+
+
 
 jest.setTimeout(10000)
 
 describe('Ratings endpoint', () => {
+  const expectedResponse = {}
+
+  it('should return a 200 status code and an object with expected props', async () => {
+    const response = await request(baseUrl)
+    .get('ratings/25');
+    // console.log('response', response.body)
+    expect(response.statusCode).toBe(200);
+    expect(Array.isArray(response.body.results)).toBeTruthy()
+    expect(typeof response.body).toBe('object')
+
+    // expect.objectContaining({
+    //   product: expect.any(Number),
+    //   page: expect.any(Number),
+    //   count: expect.any(Number),
+    //   results: expect.(Array.isArray([results])).toBeTruthy()
+    })
+    //TRY TO GET THIS ONE TO WORK
+  // it('should return a 500 if sent invalid product_id', async () => {
+  //   const response = await request(baseUrl)
+  //   .get('ratings/0')
+  //   console.log('response error', response.body)
+  //   expect(response.statusCode).toBe(500)
+  // })
+})
+
+// describe('POST review endpoint', () => {
+
+//   it('should return a 200 status code', async () => {
+//     const response = await request(baseUrl)
+//     .post('ratings');
+//     expect(response.statusCode).toBe(200);
+//   })
+// })
+
+
+
+describe('Characteristics endpoint', () => {
 
   it('should return a 200 status code', async () => {
     const response = await request(baseUrl)
-    .get('ratings/25');
+    .get('characteristics/25');
+    console.log('char response body', response.body)
     expect(response.statusCode).toBe(200);
-  })
-  it('should be an object', async () => {
-    const response = await request(baseUrl)
-    expect(typeof response.body).toBe('Object')
+    expect(typeof response.body).toBe('object')
   })
 })
+
+describe('Helpful endpoint', () => {
+
+  it('should return a 200 status code', async () => {
+    const response = await request(baseUrl)
+    .put('helpful/25');
+    expect(response.statusCode).toBe(200);
+  })
+})
+
+describe('Report endpoint', () => {
+
+  it('should return a 200 status code', async () => {
+    const response = await request(baseUrl)
+    .put('report/25');
+    expect(response.statusCode).toBe(200);
+  })
+})
+
+
 
 //does it match api data shape?

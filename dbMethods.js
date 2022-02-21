@@ -126,7 +126,7 @@ module.exports = {
         db.query(queryString, queryArgs, (err, data) => {
           if (err) {
             console.log('err in get characteristics 2', err)
-            throw(err)
+            reject(err)
           } else {
             // console.log('data', JSON.parse(JSON.stringify(data)))
             query2 = JSON.parse(JSON.stringify(data))
@@ -260,6 +260,7 @@ module.exports = {
       var queryArgs = [reviewId]
       db.query(queryString, queryArgs, (err) => {
         if (err) {
+          reject(err)
           console.log('error in update reported', err)
         } else {
           console.log('success update reported')

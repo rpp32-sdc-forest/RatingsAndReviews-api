@@ -1,5 +1,5 @@
 var mysql = require('mysql')
-var {app} = require('./server.js')
+// var {app} = require('./server.js')
 var port = 5000
 //difference between npm mysql and database
 
