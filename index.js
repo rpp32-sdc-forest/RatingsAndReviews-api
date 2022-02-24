@@ -1,3 +1,4 @@
+var newrelic = require('newrelic')
 var mysql = require('mysql')
 // var {app} = require('./server.js')
 var port = 5000

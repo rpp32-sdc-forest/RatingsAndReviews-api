@@ -16,11 +16,11 @@ app.get('/ratings/:productId', (req, res) => {
   // console.log('req.params', req.params)
   getReviews(req.params.productId)
   .then((response) => {
-    // console.log('ratings response in server', response)
+    console.log('ratings response in server', response)
     res.send(response).status(200)
   })
   .catch(err => {
-    console.log('err in app.get /ratings', err)
+    console.log('err in app.get /ratings', err.message)
     res.sendStatus(500)
   })
 })
@@ -32,20 +32,23 @@ app.get('/characteristics/:productId', (req, res) => {
     // response.characteristics = JSON.parse(response.characteristics)
     // console.log('response.characteristics', response.characteristics)
     //res.json to send as json
-    res.json(response).status(200)
+      res.json(response).status(200)
+    })
     // res.send(response).status(200)
-  })
   .catch(err => {
     console.log('err in app.get characteristics', err)
     res.sendStatus(500)
   })
-})
+});
+
 
 app.post('/ratings', (req, res) => {
   console.log('req.body in server', req.body)
   postReview(req.body)
   // .then(console.log('post resolved'))
-  res.sendStatus(200)
+  .then(() => {
+    res.sendStatus(200)
+  })
   .catch(err => {
     console.log('err in app.get characteristics', err)
     res.sendStatus(500)
@@ -55,7 +58,9 @@ app.post('/ratings', (req, res) => {
 app.put('/helpful/:reviewId', (req, res) => {
   console.log('req.params', req.params)
   updateHelpfulness(req.params.reviewId)
-  res.sendStatus(200)
+  .then(() => {
+    res.sendStatus(200)
+  })
   .catch(err => {
     console.log('err in app.get characteristics', err)
     res.sendStatus(500)
@@ -65,7 +70,9 @@ app.put('/helpful/:reviewId', (req, res) => {
 app.put('/report/:reviewId', (req, res) => {
   console.log('req.params', req.params)
   updateReported(req.params.reviewId)
-  res.sendStatus(200)
+  .then(() => {
+    res.sendStatus(200)
+  })
   .catch(err => {
     console.log('err in app.get characteristics', err)
     res.sendStatus(500)

@@ -12,9 +12,10 @@ module.exports = {
       db.query(queryString, queryArgs, (err, data) => {
         if (err) {
           console.log('error in db get reviews')
-          reject (err)
+          reject (new Error('error in GET reviews dbMethod'))
+          // throw new Error('error in GET reviews')
         } else {
-          // console.log('data', JSON.parse(JSON.stringify(data)))
+          console.log('data from getReviews', JSON.parse(JSON.stringify(data)))
           var reviews = JSON.parse(JSON.stringify(data))
           //create object response
           var reviewIds = []
@@ -35,9 +36,9 @@ module.exports = {
               review.rating = el.product_id;
               //check first for date
               if(el.date === null) {
-                reviews.date = new Date().toString();
+                review.date = new Date().toString();
               } else {
-                reviews.date = el.date
+                review.date = el.date
               }
               review.summary = el.summary;
               review.recommend = el.recommend;
@@ -71,10 +72,6 @@ module.exports = {
         }
       })
     })
-    .catch(err => {
-      throw(err)
-      console.log('error in getReviews')
-    })
   },
 
 // promisify db.query so no callbacks
@@ -89,14 +86,13 @@ module.exports = {
       + ' ' + 'FROM characteristics JOIN (characteristic_reviews)'
       + ' ' + 'ON (characteristics.char_id = characteristic_reviews.characteristic_id)'
       + ' ' + 'WHERE characteristics.product_id = ?'
-      + ' ' + 'GROUP BY characteristics.name, characteristics.char_id'
-      + ' ' + 'LIMIT 5';
+      + ' ' + 'GROUP BY characteristics.name, characteristics.char_id';
       var queryArgs = [productId]
       //return db.query get a promise back and chain with .then block -> get date
       db.query(queryString, queryArgs, (err, data) => {
         if (err) {
           console.log('err in get chars', err)
-          reject(err)
+          throw new Error('error in get characteristics review')
         } else {
           resolve(productId)
           // console.log('data', JSON.parse(JSON.stringify(data)))

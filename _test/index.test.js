@@ -99,8 +99,6 @@ it('should run Jest', () => {
   //   }
   // }
 
-
-
 jest.setTimeout(10000)
 
 describe('Ratings endpoint', () => {
@@ -114,6 +112,11 @@ describe('Ratings endpoint', () => {
     expect(Array.isArray(response.body.results)).toBeTruthy()
     expect(typeof response.body).toBe('object')
 
+  // it('should return a 200 status code', async () => {
+  //   const response = await request(baseUrl)
+  //   .post('ratings');
+  //   expect(response.statusCode).toBe
+  // })
     // expect.objectContaining({
     //   product: expect.any(Number),
     //   page: expect.any(Number),
@@ -121,12 +124,12 @@ describe('Ratings endpoint', () => {
     //   results: expect.(Array.isArray([results])).toBeTruthy()
     })
     //TRY TO GET THIS ONE TO WORK
-  // it('should return a 500 if sent invalid product_id', async () => {
-  //   const response = await request(baseUrl)
-  //   .get('ratings/0')
-  //   console.log('response error', response.body)
-  //   expect(response.statusCode).toBe(500)
-  // })
+  it('should return a 500 if sent invalid product_id', async () => {
+    const response = await request(baseUrl)
+    .get('ratings/0')
+    console.log('response error', response)
+    expect(response.statusCode).toBe(500)
+  })
 })
 
 // describe('POST review endpoint', () => {

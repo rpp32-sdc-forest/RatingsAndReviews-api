@@ -1,5 +1,8 @@
 
 module.exports = {
   // preset: "jest-mysql"
-  testEnvironment: "node"
+  testEnvironment: "node",
+  collectCoverage: true
+
+  // coverageReporters: ["json", "html"]
 };
