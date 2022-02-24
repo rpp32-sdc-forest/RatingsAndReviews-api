@@ -141,7 +141,10 @@ module.exports = {
             query2.forEach((rev) => {
               response.ratings[rev.rating] = rev.total
             })
-            response.recommended = {'0': query2[0].t, '1': query2[0].f}
+            response.recommended = {
+              '0': query2[0] ? query2[0].t : 0,
+              '1': query2[0] ? query2[0].f : 0
+            }
             // console.log('response', response)
             resolve(response)
           }

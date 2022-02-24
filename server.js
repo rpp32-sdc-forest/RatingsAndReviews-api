@@ -1,6 +1,6 @@
 const express = require('express')
 // const {createServer} = require('./server.ts')
-
+//require newRelic -- decorates req / response object
 const app = express()
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
@@ -32,7 +32,7 @@ app.get('/characteristics/:productId', (req, res) => {
     // response.characteristics = JSON.parse(response.characteristics)
     // console.log('response.characteristics', response.characteristics)
     //res.json to send as json
-      res.json(response).status(200)
+      res.send(response).status(200)
     })
     // res.send(response).status(200)
   .catch(err => {
