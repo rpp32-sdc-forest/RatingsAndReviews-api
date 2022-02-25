@@ -31,6 +31,7 @@ connection.connect((err, result) => {
 // exports.connection = connection
 // exports.client = client
 
+//two separate servers running
 
 
 module.exports = {db: connection, client: client}

@@ -16,7 +16,7 @@ app.get('/ratings/:productId', (req, res) => {
   // console.log('req.params', req.params)
   getReviews(req.params.productId)
   .then((response) => {
-    console.log('ratings response in server', response)
+    // console.log('ratings response in server', response)
     res.send(response).status(200)
     // res.send(setResponse())
   })
@@ -51,33 +51,45 @@ app.post('/ratings', (req, res) => {
     res.sendStatus(200)
   })
   .catch(err => {
-    console.log('err in app.get characteristics', err)
+    console.log('err in app.post ratings', err)
     res.sendStatus(500)
   })
 })
 
-app.put('/helpful/:reviewId', (req, res) => {
-  console.log('req.params', req.params)
-  updateHelpfulness(req.params.reviewId)
-  .then(() => {
+// app.put('/helpful/:reviewId', (req, res) => {
+//   console.log('req.params', req.params)
+//   updateHelpfulness(req.params.reviewId)
+//   .then(() => {
+//     res.sendStatus(200)
+//   })
+//   .catch(err => {
+//     console.log('err in app.put helpful', err)
+//     res.sendStatus(500)
+//   })
+// })
+
+app.put('/helpful/:reviewId', async (req, res) => {
+  try {
+    const result = await updateHelpfulness(req.params.reviewId)
+    console.log('successful app.put helpful')
     res.sendStatus(200)
-  })
-  .catch(err => {
-    console.log('err in app.get characteristics', err)
+  }
+  catch (err) {
+    console.log('err in app.put helpful', err)
     res.sendStatus(500)
-  })
+  }
 })
 
-app.put('/report/:reviewId', (req, res) => {
-  console.log('req.params', req.params)
-  updateReported(req.params.reviewId)
-  .then(() => {
+app.put('/report/:reviewId', async (req, res) => {
+  try {
+   const result = await updateReported(req.params.reviewId)
+    console.log('success app.put report')
     res.sendStatus(200)
-  })
-  .catch(err => {
-    console.log('err in app.get characteristics', err)
+    }
+  catch (err) {
+    console.log('err in app.put reported', err)
     res.sendStatus(500)
-  })
+  }
 })
 
 app.listen(port, () => {

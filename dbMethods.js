@@ -18,7 +18,7 @@ module.exports = {
           reject (new Error('error in GET reviews dbMethod'))
           // throw new Error('error in GET reviews')
         } else {
-          console.log('data from getReviews', JSON.parse(JSON.stringify(data)))
+          // console.log('data from getReviews', JSON.parse(JSON.stringify(data)))
           var reviews = JSON.parse(JSON.stringify(data))
           //create object response
           var reviewIds = []
@@ -243,40 +243,69 @@ module.exports = {
     })
   },
 
-  updateHelpfulness: (reviewId) => {
-    console.log('reviewId', reviewId)
-    return new Promise((resolve, reject) => {
+  // updateHelpfulness: (reviewId) => {
+  //   return new Promise((resolve, reject) => {
+  //     var queryString = 'UPDATE reviews SET helpfulness = IFNULL(helpfulness, 0) + 1 WHERE rev_id = ?'
+  //     var queryArgs = [reviewId]
+  //     db.query(queryString, queryArgs, (err, result) => {
+  //       if (err) {
+  //         console.log('error in update helpfulness', err)
+  //         reject(err)
+  //       } else {
+  //         console.log('success update helpfulness', result)
+  //         resolve()
+  //       }
+  //     })
+  //   })
+  // },
+
+  updateHelpfulness: async (reviewId) => {
+    try {
       var queryString = 'UPDATE reviews SET helpfulness = IFNULL(helpfulness, 0) + 1 WHERE rev_id = ?'
       var queryArgs = [reviewId]
-      db.query(queryString, queryArgs, (err, result) => {
-        if (err) {
-          console.log('error in update helpfulness', err)
-          reject(err)
-        } else {
-          console.log('success update helpfulness', result)
-          resolve()
-        }
-      })
-    })
+      const response = await db.query(queryString, queryArgs)
+      console.log('success update helpful')
+      return response;
+    }
+    catch (err) {
+      console.log('error in update helpfulness dbMethods', err)
+    }
   },
 
-  updateReported: (reviewId) => {
-    console.log('reviewId', reviewId)
 
-    return new Promise((resolve, reject) => {
-      var queryString = 'UPDATE reviews SET reported = true WHERE rev_id = ?'
-      var queryArgs = [reviewId]
-      db.query(queryString, queryArgs, (err) => {
-        if (err) {
-          reject(err)
-          console.log('error in update reported', err)
-        } else {
-          console.log('success update reported')
-          resolve()
-        }
-      })
-    })
-  }
+  // updateReported: (reviewId) => {
+  //   return new Promise((resolve, reject) => {
+  //     var queryString = 'UPDATE reviews SET reported = true WHERE rev_id = ?'
+  //     var queryArgs = [reviewId]
+  //     db.query(queryString, queryArgs, (err) => {
+  //       if (err) {
+  //         reject(err)
+  //         console.log('error in update reported', err)
+  //       } else {
+  //         console.log('success update reported')
+  //         resolve()
+  //       }
+  //     })
+  //   })
+  // },
+
+//async -- everyone in here, know that it's async, a flag
+//await -- whatever we're pausing the interpreter for
+
+  updateReported: async (reviewId) => {
+      try {
+        var queryString = 'UPDATE reviews SET reported = true WHERE rev_id = ?'
+        var queryArgs = [reviewId]
+        const response = await db.query(queryString, queryArgs)
+        // console.log('success update reported', response)
+        return response;
+      }
+      catch (err) {
+        console.log('error in updateReported dbMethods', err)
+        throw err
+      }
+    }
 }
+
 
 
