@@ -18,6 +18,7 @@ app.get('/ratings/:productId', (req, res) => {
   .then((response) => {
     console.log('ratings response in server', response)
     res.send(response).status(200)
+    // res.send(setResponse())
   })
   .catch(err => {
     console.log('err in app.get /ratings', err.message)

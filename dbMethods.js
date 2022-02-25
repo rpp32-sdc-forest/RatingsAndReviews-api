@@ -1,4 +1,7 @@
-var db = require('./index.js')
+const {db} = require('./index.js')
+const {client} = require('./index.js')
+const redis = require('redis')
+// const {createClient} = require('redis')
 //replicate this file dbTestMethods that will query test db
 
 module.exports = {
@@ -67,6 +70,12 @@ module.exports = {
             }
           })
           response.count = reviewIds.length;
+
+          //SET RESPONSE TO REDIS
+          // const client = async createClient()
+          // await client.connect()
+          // await client.set(productId, response)
+
           // console.log('response', response)
           resolve(response)
         }
