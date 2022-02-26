@@ -259,16 +259,15 @@ module.exports = {
   //   })
   // },
 
-  updateHelpfulness: async (reviewId) => {
+  updateHelpfulness: (reviewId) => {
     try {
       var queryString = 'UPDATE reviews SET helpfulness = IFNULL(helpfulness, 0) + 1 WHERE rev_id = ?'
       var queryArgs = [reviewId]
-      const response = await db.query(queryString, queryArgs)
-      console.log('success update helpful')
-      return response;
+      return db.query(queryString, queryArgs)
     }
     catch (err) {
       console.log('error in update helpfulness dbMethods', err)
+      throw (err)
     }
   },
 
@@ -289,22 +288,20 @@ module.exports = {
   //   })
   // },
 
-//async -- everyone in here, know that it's async, a flag
-//await -- whatever we're pausing the interpreter for
 
-  updateReported: async (reviewId) => {
-      try {
-        var queryString = 'UPDATE reviews SET reported = true WHERE rev_id = ?'
-        var queryArgs = [reviewId]
-        const response = await db.query(queryString, queryArgs)
-        // console.log('success update reported', response)
-        return response;
-      }
-      catch (err) {
-        console.log('error in updateReported dbMethods', err)
-        throw err
-      }
+  updateReported: (reviewId) => {
+    try {
+      var queryString = 'UPDATE reviews SET reported = true WHERE rev_id = ?'
+      var queryArgs = [reviewId]
+      return db.query(queryString, queryArgs)
+      // console.log('result', result.rows)
+      // return result
     }
+    catch (err) {
+      console.log('error in updateReported dbMethods', err)
+      throw err
+    }
+  }
 }
 
 

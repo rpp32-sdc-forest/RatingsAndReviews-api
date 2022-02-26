@@ -70,7 +70,7 @@ app.post('/ratings', (req, res) => {
 
 app.put('/helpful/:reviewId', async (req, res) => {
   try {
-    const result = await updateHelpfulness(req.params.reviewId)
+    await updateHelpfulness(req.params.reviewId)
     console.log('successful app.put helpful')
     res.sendStatus(200)
   }
@@ -81,8 +81,10 @@ app.put('/helpful/:reviewId', async (req, res) => {
 })
 
 app.put('/report/:reviewId', async (req, res) => {
+  console.log('req.params in server', req.params.reviewId)
   try {
-   const result = await updateReported(req.params.reviewId)
+   await updateReported(req.params.reviewId)
+   //var data = await getReported(req.params.reviewId)
     console.log('success app.put report')
     res.sendStatus(200)
     }
@@ -97,3 +99,4 @@ app.listen(port, () => {
 })
 
 module.exports = app;
+
