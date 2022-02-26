@@ -16,7 +16,7 @@ app.get('/ratings/:productId', (req, res) => {
   // console.log('req.params', req.params)
   getReviews(req.params.productId)
   .then((response) => {
-    console.log('ratings response in server', response)
+    // console.log('ratings response in server', response)
     res.send(response).status(200)
     // res.send(setResponse())
   })

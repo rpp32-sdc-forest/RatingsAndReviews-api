@@ -18,7 +18,7 @@ module.exports = {
           reject (new Error('error in GET reviews dbMethod'))
           // throw new Error('error in GET reviews')
         } else {
-          console.log('data from getReviews', JSON.parse(JSON.stringify(data)))
+          // console.log('data from getReviews', JSON.parse(JSON.stringify(data)))
           var reviews = JSON.parse(JSON.stringify(data))
           //create object response
           var reviewIds = []
@@ -72,9 +72,7 @@ module.exports = {
           response.count = reviewIds.length;
 
           //SET RESPONSE TO REDIS
-          // const client = async createClient()
-          // await client.connect()
-          // await client.set(productId, response)
+          client.set(productId, response)
 
           // console.log('response', response)
           resolve(response)
