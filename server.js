@@ -1,4 +1,5 @@
 const express = require('express')
+const client = require('./init_redis.js')
 // const {createServer} = require('./server.ts')
 //require newRelic -- decorates req / response object
 const app = express()

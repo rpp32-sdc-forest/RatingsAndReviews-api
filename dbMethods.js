@@ -1,84 +1,104 @@
-const {db} = require('./index.js')
-const {client} = require('./index.js')
+const db = require('./index.js')
+// const client = require('./init_redis.js')
+const redis = new Redis();
+//ioredis --grab from cache before db if it can
+
 const redis = require('redis')
 // const {createClient} = require('redis')
 //replicate this file dbTestMethods that will query test db
 
+//cluster -- when cache is split/shared amongst different instances, need to replicate actions
+
 module.exports = {
 
   getReviews: (productId) => {
-    // console.log('getReviews called')
-    // console.log(productId)
-    return new Promise((resolve, reject) => {
-      var queryString = 'SELECT * FROM reviews LEFT JOIN photos ON reviews.rev_id = photos.review_id WHERE product_id = ? limit 50'
-      var queryArgs = [productId]
-      db.query(queryString, queryArgs, (err, data) => {
-        if (err) {
-          console.log('error in db get reviews')
-          reject (new Error('error in GET reviews dbMethod'))
-          // throw new Error('error in GET reviews')
-        } else {
-          // console.log('data from getReviews', JSON.parse(JSON.stringify(data)))
-          var reviews = JSON.parse(JSON.stringify(data))
-          //create object response
-          var reviewIds = []
-          var response = {
-            product: productId,
-            page: 0,
-            count: null,
-            results: []
-          }
-          // console.log('response', response)
-          data.forEach(el => {
 
-            if (!reviewIds.includes(el.rev_id)) {
-              reviewIds.push(el.rev_id)
-
-              var review = {}
-              review.review_id = el.rev_id;
-              review.rating = el.product_id;
-              //check first for date
-              if(el.date === null) {
-                review.date = new Date().toString();
-              } else {
-                review.date = el.date
-              }
-              review.summary = el.summary;
-              review.recommend = el.recommend;
-              review.response = el.response;
-              review.report = el.reported;
-              review.body = el.body;
-              review.date = el.date;
-              review.reviewer_name = el.reviewer_name;
-              review.review_email = el.reviewer_email;
-              review.helpfulness = el.helpfulness;
-                //if it's null just leave mepty array
-                //if not null, push to array
-              review.photos = []
-              if (el.url !== null) {
-                review.photos.push(el.url)
-              }
-              response.results.push(review)
+    client.get(productId, (err, reviews) => {
+      if (err) {
+        return new Promise((resolve, reject) => {
+          var queryString = 'SELECT * FROM reviews LEFT JOIN photos ON reviews.rev_id = photos.review_id WHERE product_id = ? limit 50'
+          var queryArgs = [productId]
+          db.query(queryString, queryArgs, (err, data) => {
+            if (err) {
+              console.log('error in db get reviews')
+              reject (new Error('error in GET reviews dbMethod'))
+              // throw new Error('error in GET reviews')
             } else {
-              for (var revs in response.results) {
-                if (el.rev_id === revs.review_id) {
+              // console.log('data from getReviews', JSON.parse(JSON.stringify(data)))
+              var reviews = JSON.parse(JSON.stringify(data))
+              //create object response
+              var reviewIds = []
+              var response = {
+                product: productId,
+                page: 0,
+                count: null,
+                results: []
+              }
+              // console.log('response', response)
+              data.forEach(el => {
+
+                if (!reviewIds.includes(el.rev_id)) {
+                  reviewIds.push(el.rev_id)
+
+                  var review = {}
+                  review.review_id = el.rev_id;
+                  review.rating = el.product_id;
+                  //check first for date
+                  if(el.date === null) {
+                    review.date = new Date().toString();
+                  } else {
+                    review.date = el.date
+                  }
+                  review.summary = el.summary;
+                  review.recommend = el.recommend;
+                  review.response = el.response;
+                  review.report = el.reported;
+                  review.body = el.body;
+                  review.date = el.date;
+                  review.reviewer_name = el.reviewer_name;
+                  review.review_email = el.reviewer_email;
+                  review.helpfulness = el.helpfulness;
+                    //if it's null just leave mepty array
+                    //if not null, push to array
+                  review.photos = []
                   if (el.url !== null) {
-                    revs.photos.push(el.url)
+                    review.photos.push(el.url)
+                  }
+                  response.results.push(review)
+                } else {
+                  for (var revs in response.results) {
+                    if (el.rev_id === revs.review_id) {
+                      if (el.url !== null) {
+                        revs.photos.push(el.url)
+                      }
+                    }
                   }
                 }
-              }
+              })
+              response.count = reviewIds.length;
+
+              //SET RESPONSE TO REDIS
+
+              client.set(productId, response)
+
+              // console.log('response', response)
+              resolve(response)
             }
           })
-          response.count = reviewIds.length;
+        })
+      }
+      if (reviews) {
+        return reviews
+      }
 
-          //SET RESPONSE TO REDIS
-          client.set(productId, response)
 
-          // console.log('response', response)
-          resolve(response)
-        }
-      })
+
     })
+    // console.log('getReviews called')
+    // console.log(productId)
+
+    //cache hit, don't go into db and
+    //cache miss, set cache & get from db
   },
 
 // promisify db.query so no callbacks

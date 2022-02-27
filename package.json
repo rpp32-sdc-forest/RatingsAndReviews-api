@@ -21,6 +21,7 @@
     "csv-parser": "^3.0.0",
     "express": "^4.17.2",
     "fast-csv": "^4.3.6",
+    "ioredis": "^4.28.5",
     "merge-csv": "^1.0.3",
     "mongoose": "^6.1.9",
     "mysql": "^2.18.1",

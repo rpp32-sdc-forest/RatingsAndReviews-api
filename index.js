@@ -1,11 +1,5 @@
 const newrelic = require('newrelic')
 const mysql = require('mysql')
-const redis = require('redis')
-// const {app} = require('./server.js')
-const port = 5000
-const redis_port = 6379
-const client = redis.createClient(redis_port)
-//difference between npm mysql and database
 
 
 const connection = mysql.createConnection({
@@ -24,13 +18,4 @@ connection.connect((err, result) => {
   }
 })
 
-// app.listen(port, () => {
-//   console.log(`listening on http://localhost:${port}`)
-// })
-
-// exports.connection = connection
-// exports.client = client
-
-
-
-module.exports = {db: connection, client: client}
+module.exports = connection
