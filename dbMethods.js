@@ -1,9 +1,10 @@
 const db = require('./index.js')
 // const client = require('./init_redis.js')
+const Redis = require('ioredis')
 const redis = new Redis();
+const {shapeReviews, shapeCharacteristics} = require('./helpers/dataShapers')
 //ioredis --grab from cache before db if it can
 
-const redis = require('redis')
 // const {createClient} = require('redis')
 //replicate this file dbTestMethods that will query test db
 
@@ -13,7 +14,7 @@ module.exports = {
 
   getReviews: (productId) => {
 
-    client.get(productId, (err, reviews) => {
+    redis.get(productId, (err, reviews) => {
       if (err) {
         return new Promise((resolve, reject) => {
           var queryString = 'SELECT * FROM reviews LEFT JOIN photos ON reviews.rev_id = photos.review_id WHERE product_id = ? limit 50'
@@ -25,63 +26,8 @@ module.exports = {
               // throw new Error('error in GET reviews')
             } else {
               // console.log('data from getReviews', JSON.parse(JSON.stringify(data)))
-              var reviews = JSON.parse(JSON.stringify(data))
-              //create object response
-              var reviewIds = []
-              var response = {
-                product: productId,
-                page: 0,
-                count: null,
-                results: []
-              }
-              // console.log('response', response)
-              data.forEach(el => {
-
-                if (!reviewIds.includes(el.rev_id)) {
-                  reviewIds.push(el.rev_id)
-
-                  var review = {}
-                  review.review_id = el.rev_id;
-                  review.rating = el.product_id;
-                  //check first for date
-                  if(el.date === null) {
-                    review.date = new Date().toString();
-                  } else {
-                    review.date = el.date
-                  }
-                  review.summary = el.summary;
-                  review.recommend = el.recommend;
-                  review.response = el.response;
-                  review.report = el.reported;
-                  review.body = el.body;
-                  review.date = el.date;
-                  review.reviewer_name = el.reviewer_name;
-                  review.review_email = el.reviewer_email;
-                  review.helpfulness = el.helpfulness;
-                    //if it's null just leave mepty array
-                    //if not null, push to array
-                  review.photos = []
-                  if (el.url !== null) {
-                    review.photos.push(el.url)
-                  }
-                  response.results.push(review)
-                } else {
-                  for (var revs in response.results) {
-                    if (el.rev_id === revs.review_id) {
-                      if (el.url !== null) {
-                        revs.photos.push(el.url)
-                      }
-                    }
-                  }
-                }
-              })
-              response.count = reviewIds.length;
-
-              //SET RESPONSE TO REDIS
-
-              client.set(productId, response)
-
-              // console.log('response', response)
+              var response = shapeReviews(productId, data)
+              redis.set(productId, response)
               resolve(response)
             }
           })
@@ -90,16 +36,14 @@ module.exports = {
       if (reviews) {
         return reviews
       }
-
-
-
     })
+  },
     // console.log('getReviews called')
     // console.log(productId)
 
     //cache hit, don't go into db and
     //cache miss, set cache & get from db
-  },
+
 
 // promisify db.query so no callbacks
   getCharacteristicReviews: (productId) => {
@@ -153,26 +97,7 @@ module.exports = {
           } else {
             // console.log('data', JSON.parse(JSON.stringify(data)))
             query2 = JSON.parse(JSON.stringify(data))
-
-            var response = {
-              product_id: productId,
-              ratings: {},
-              recommended: {},
-              characteristics: {}
-            }
-            query1.forEach((char) => {
-              var parsedCharName = JSON.parse(char.name)
-
-              response.characteristics[parsedCharName] = {'id': char.char_id, 'value': char.value}
-            })
-            query2.forEach((rev) => {
-              response.ratings[rev.rating] = rev.total
-            })
-            response.recommended = {
-              '0': query2[0] ? query2[0].t : 0,
-              '1': query2[0] ? query2[0].f : 0
-            }
-            // console.log('response', response)
+            var response = shapeCharacteristics(query1, query2, productId)
             resolve(response)
           }
         })
@@ -184,8 +109,7 @@ module.exports = {
 
 
   postReview: (body) => {
-    console.log('review body in dbs', body)
-    // console.log('array of chars', Object.entries(body.characteristics))
+    // console.log('review body in dbs', body)
     var charsArray = Object.entries(body.characteristics)
     body.characteristics = charsArray.filter(([key, value]) => value !== '')
     return new Promise((resolve, reject) => {
