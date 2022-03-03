@@ -1,4 +1,4 @@
-DROP DATABASE ratings;
+-- DROP DATABASE ratings;
 CREATE DATABASE ratings;
 
 USE ratings;

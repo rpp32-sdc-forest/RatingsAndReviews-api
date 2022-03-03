@@ -1,11 +1,12 @@
 const express = require('express')
 const client = require('./init_redis.js')
+const {createProxyMiddleware} = require('http-proxy-middleware')
 // const {createServer} = require('./server.ts')
 //require newRelic -- decorates req / response object
 const app = express()
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
-
+app.use('/ratings', createProxyMiddleware({target: 'http://localhost:5000'})
 const model = require('./index.js')
 const port = 5000
 const {getReviews, getCharacteristicReviews, postReview, updateHelpfulness, updateReported} = require('./dbMethods')

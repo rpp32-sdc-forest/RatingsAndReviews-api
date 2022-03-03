@@ -14,8 +14,8 @@ module.exports = {
 
   getReviews: (productId) => {
 
-    redis.get(productId, (err, reviews) => {
-      if (err) {
+    // redis.get(productId, (err, reviews) => {
+    //   if (err) {
         return new Promise((resolve, reject) => {
           var queryString = 'SELECT * FROM reviews LEFT JOIN photos ON reviews.rev_id = photos.review_id WHERE product_id = ? limit 50'
           var queryArgs = [productId]
@@ -32,12 +32,12 @@ module.exports = {
             }
           })
         })
-      }
-      if (reviews) {
-        return reviews
-      }
-    })
-  },
+      },
+      // if (reviews) {
+      //   return reviews
+      // }
+  //   })
+  // },
     // console.log('getReviews called')
     // console.log(productId)
 
