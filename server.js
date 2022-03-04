@@ -4,18 +4,22 @@ const {createProxyMiddleware} = require('http-proxy-middleware')
 // const {createServer} = require('./server.ts')
 //require newRelic -- decorates req / response object
 const app = express()
+// app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
-app.use('/ratings', createProxyMiddleware({target: 'http://localhost:5000'})
+// app.use('/ratings', createProxyMiddleware({target: 'http://localhost:5000'}))
 const model = require('./index.js')
 const port = 5000
 const {getReviews, getCharacteristicReviews, postReview, updateHelpfulness, updateReported} = require('./dbMethods')
 
-
-
-app.get('/ratings/:productId', (req, res) => {
+//every get route -- looks up in rem
+//app.all --> request.method, req.originalURL to find where it was coming from
+//proxy is passing request along
+// app.get('*')
+app.get('/ratings/reviews/:productId', (req, res) => {
   //call dbMethod getReviews to query reviews collection
   // console.log('req.params', req.params)
+  //req.originalURL -- app.get*
   getReviews(req.params.productId)
   .then((response) => {
     console.log('ratings response in server', response)

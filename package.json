@@ -18,6 +18,8 @@
   },
   "homepage": "https://github.com/rpp32-sdc-forest/RatingsAndReviews-api#readme",
   "dependencies": {
+    "axios": "^0.26.0",
+    "cors": "^2.8.5",
     "csv-parser": "^3.0.0",
     "dotenv": "^16.0.0",
     "express": "^4.17.2",
