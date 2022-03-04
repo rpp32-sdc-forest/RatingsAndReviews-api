@@ -1,5 +1,5 @@
 const express = require('express')
-const client = require('./init_redis.js')
+// const client = require('./init_redis.js')
 const {createProxyMiddleware} = require('http-proxy-middleware')
 // const {createServer} = require('./server.ts')
 //require newRelic -- decorates req / response object
