@@ -32,7 +32,7 @@ app.get('/ratings/reviews/:productId', (req, res) => {
   })
 })
 
-app.get('/characteristics/:productId', (req, res) => {
+app.get('/ratings/characteristics/:productId', (req, res) => {
   getCharacteristicReviews(req.params.productId)
   .then((response) => {
     // console.log('char response in server', response)
@@ -49,7 +49,7 @@ app.get('/characteristics/:productId', (req, res) => {
 });
 
 
-app.post('/ratings', (req, res) => {
+app.post('/ratings/reviews', (req, res) => {
   console.log('req.body in server', req.body)
   postReview(req.body)
   // .then(console.log('post resolved'))
@@ -62,7 +62,7 @@ app.post('/ratings', (req, res) => {
   })
 })
 
-app.put('/helpful/:reviewId', (req, res) => {
+app.put('/ratings/helpful/:reviewId', (req, res) => {
   console.log('req.params', req.params)
   updateHelpfulness(req.params.reviewId)
   .then(() => {
@@ -74,7 +74,7 @@ app.put('/helpful/:reviewId', (req, res) => {
   })
 })
 
-app.put('/report/:reviewId', (req, res) => {
+app.put('/ratings/report/:reviewId', (req, res) => {
   console.log('req.params', req.params)
   updateReported(req.params.reviewId)
   .then(() => {
