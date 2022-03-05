@@ -3,9 +3,12 @@ const mysql = require('mysql')
 
 
 const connection = mysql.createConnection({
-  user: 'root',
+  user: 'root2',
   password: 'password',
-  database: 'ratings'
+  database: 'ratings',
+  host: '34.194.219.95'
+
+  //host name is ip address of db instance
 })
 
 connection.connect((err, result) => {
