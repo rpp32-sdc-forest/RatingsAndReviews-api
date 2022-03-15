@@ -1,14 +1,9 @@
 const db = require('./index.js')
 // const client = require('./init_redis.js')
-const Redis = require('ioredis')
-const redis = new Redis();
+// const Redis = require('ioredis')
+// const redis = new Redis();
+
 const {shapeReviews, shapeCharacteristics} = require('./helpers/dataShapers')
-//ioredis --grab from cache before db if it can
-
-// const {createClient} = require('redis')
-//replicate this file dbTestMethods that will query test db
-
-//cluster -- when cache is split/shared amongst different instances, need to replicate actions
 
 module.exports = {
 
@@ -27,7 +22,7 @@ module.exports = {
             } else {
               // console.log('data from getReviews', JSON.parse(JSON.stringify(data)))
               var response = shapeReviews(productId, data)
-              redis.set(productId, response)
+              // redis.set(productId, response)
               resolve(response)
             }
           })

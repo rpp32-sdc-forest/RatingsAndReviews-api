@@ -1,11 +1,18 @@
 const nodemon = require('nodemon')
 const axios = require('axios')
 const express = require('express')
+
+
 const app = express()
 app.use(express.json())
 
 const port = 8080
 app.use(express.urlencoded({extended: true}))
+
+//app.get( collect all get requests) -> {
+  //find the route that came after the ip address
+  //if req.orginUrl has ratings --> use mer backend ip
+  //if it had pro --> use joe backend ip
 
 app.get('*', (req, res) => {
   // console.log('req', req.originalUrl)
