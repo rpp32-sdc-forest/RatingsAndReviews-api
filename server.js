@@ -28,7 +28,6 @@ client.on('error', (err) => {
 //proxy is passing request along
 // app.get('*')
 app.get('/ratings/reviews/:productId', (req, res) => {
-  console.log('req.params', req.params)
   const {productId} = req.params
   client.get(productId, async (err, reviews) => {
     if (err) throw err;

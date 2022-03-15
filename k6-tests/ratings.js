@@ -10,7 +10,8 @@ export default function () {
   const min = 90000
   const id = Math.floor(Math.random()*(max - min + 1)) + min
   // http.get('https://test.k6.io');
-  http.get(`http://localhost:5000/ratings/reviews/${id}`)
+  // http.get(`http://localhost:5000/ratings/reviews/${id}`)
+  http.get(`http://54.147.168.66:5000/ratings/reviews/${id}`)
   //sleep = how long waiting between each simulated user
   sleep(1);
 }
