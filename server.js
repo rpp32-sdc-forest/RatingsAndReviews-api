@@ -32,7 +32,7 @@ const {getReviews, getCharacteristicReviews, postReview, updateHelpfulness, upda
 //proxy is passing request along
 // app.get('*')
 
-app.get('/', (req, res) => {
+app.get('/loaderio-ee854e181eb4a0a98ec6918342174793.txt', (req, res) => {
   res.send('loaderio-ee854e181eb4a0a98ec6918342174793')
 })
 
