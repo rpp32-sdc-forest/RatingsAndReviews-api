@@ -5,7 +5,7 @@ const {createProxyMiddleware} = require('http-proxy-middleware')
 //require newRelic -- decorates req / response object
 const app = express()
 app.use(express.json())
-app.use(express.static('loaderio-ee854e181eb4a0a98ec6918342174793.txt'))
+app.use(express.static('/loaderio-ee854e181eb4a0a98ec6918342174793.txt'))
 app.use(express.urlencoded({extended: true}))
 // app.use('/ratings', createProxyMiddleware({target: 'http://localhost:5000'}))
 /*
