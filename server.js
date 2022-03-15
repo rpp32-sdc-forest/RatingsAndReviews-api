@@ -5,8 +5,10 @@ const {createProxyMiddleware} = require('http-proxy-middleware')
 //require newRelic -- decorates req / response object
 const app = express()
 app.use(express.json())
+app.use(express.static('loaderio-ee854e181eb4a0a98ec6918342174793.txt'))
 app.use(express.urlencoded({extended: true}))
 // app.use('/ratings', createProxyMiddleware({target: 'http://localhost:5000'}))
+/*
 const redis = require('redis')
 const redisPort = 6379
 const client = redis.createClient({
@@ -15,31 +17,33 @@ const client = redis.createClient({
   legacyMode: true
 })
 client.connect()
+client.on('error', (err) => {
+  console.log(err)
+})
+*/
 const model = require('./index.js')
 const port = 5000
 const {getReviews, getCharacteristicReviews, postReview, updateHelpfulness, updateReported} = require('./dbMethods')
 
 
-client.on('error', (err) => {
-  console.log(err)
-})
+
 //every get route -- looks up in rem
 //app.all --> request.method, req.originalURL to find where it was coming from
 //proxy is passing request along
 // app.get('*')
 app.get('/ratings/reviews/:productId', (req, res) => {
   const {productId} = req.params
-  client.get(productId, async (err, reviews) => {
-    if (err) throw err;
-    if (reviews) {
-      res.status(200).send({
-        reviews: JSON.parse(reviews),
-        message: "data retrieved from cache"
-      })
-    } else {
+  // client.get(productId, async (err, reviews) => {
+  //   if (err) throw err;
+  //   if (reviews) {
+  //     res.status(200).send({
+  //       reviews: JSON.parse(reviews),
+  //       message: "data retrieved from cache"
+  //     })
+  //   } else {
       getReviews(req.params.productId)
       .then((response) => {
-        client.setex(productId, 600, JSON.stringify(response));
+        // client.setex(productId, 600, JSON.stringify(response));
         // console.log('ratings response in server', response)
         res.send(response).status(200)
         // res.send(setResponse())
@@ -48,9 +52,9 @@ app.get('/ratings/reviews/:productId', (req, res) => {
         console.log('err in app.get /ratings', err.message)
         res.sendStatus(500)
       })
-    }
-  })
-})
+    })
+//   })
+// })
 
 app.get('/ratings/characteristics/:productId', (req, res) => {
   getCharacteristicReviews(req.params.productId)
