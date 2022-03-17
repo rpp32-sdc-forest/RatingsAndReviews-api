@@ -22,8 +22,8 @@ const model = require('./index.js')
 const port = 5000
 const {getReviews, getCharacteristicReviews, postReview, updateHelpfulness, updateReported} = require('./dbMethods')
 
-app.get('/loaderio-ee854e181eb4a0a98ec6918342174793.txt', (req, res) => {
-  res.send('loaderio-ee854e181eb4a0a98ec6918342174793')
+app.get('/loaderio-d31975cfff2e598ccb1a6a1760dc0426.txt', (req, res) => {
+  res.send('loaderio-d31975cfff2e598ccb1a6a1760dc0426')
 })
 
 app.get('/ratings/reviews/:productId', (req, res) => {
